@@ -1,4 +1,4 @@
-package authentication
+package cryptography
 
 import (
 	"errors"
