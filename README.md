@@ -1,2 +1,5 @@
-# muzz-go
-Small web application in Go for demo purposes.
+# Muzz Application
+
+Implement the required features for a simple application that complies with the requirements.
+
+
