@@ -2,26 +2,26 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"muzz-service/pkg/entities"
-	"muzz-service/pkg/entities/cryptography"
 	"muzz-service/pkg/repository"
+	"muzz-service/pkg/types"
+	"muzz-service/pkg/types/cryptography"
 	"net/http"
 )
 
 func Create(c *gin.Context) {
-	user := entities.User{
-		Email:    entities.GenerateEmail(),
-		Password: entities.GeneratePassword(),
-		Name:     entities.GenerateName(),
-		Gender:   entities.GenerateGender(),
-		Age:      entities.GenerateAge(),
+	user := types.User{
+		Email:    types.GenerateEmail(),
+		Password: types.GeneratePassword(),
+		Name:     types.GenerateName(),
+		Gender:   types.GenerateGender(),
+		Age:      types.GenerateAge(),
 	}
 
 	// hash the password but keep the value of original password
 	password := user.Password
 	hashedPassword, err := cryptography.HashPassword(user.Password)
 	if err != nil {
-		entities.ErrResp(c, http.StatusInternalServerError, "error hashing password", nil)
+		types.ErrResp(c, http.StatusInternalServerError, "error hashing password", nil)
 		return
 	}
 
@@ -30,10 +30,10 @@ func Create(c *gin.Context) {
 
 	// important: return the original password
 	persistedUser.Password = password
-	entities.OkResp(c, http.StatusCreated, persistedUser)
+	types.OkResp(c, http.StatusCreated, persistedUser)
 }
 
 func GetAll(c *gin.Context) {
 	users := repository.GetAll()
-	entities.OkResp(c, http.StatusOK, users)
+	types.OkResp(c, http.StatusOK, users)
 }

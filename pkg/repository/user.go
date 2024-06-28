@@ -1,25 +1,25 @@
 package repository
 
-import "muzz-service/pkg/entities"
+import "muzz-service/pkg/types"
 
-var users []entities.User
+var users []types.User
 
-func GetAll() []entities.User {
+func GetAll() []types.User {
 	return users
 
 }
 
-func Create(user entities.User) entities.User {
+func Create(user types.User) types.User {
 	user.ID = len(users) + 1
 	users = append(users, user)
 	return user
 }
 
-func GetByEmail(email string) (entities.User, bool) {
+func GetByEmail(email string) (types.User, bool) {
 	for _, user := range users {
 		if user.Email == email {
 			return user, true
 		}
 	}
-	return entities.User{}, false
+	return types.User{}, false
 }

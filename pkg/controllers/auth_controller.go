@@ -2,45 +2,43 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"muzz-service/pkg/entities"
-	"muzz-service/pkg/entities/cryptography"
 	"muzz-service/pkg/repository"
+	"muzz-service/pkg/types"
+	"muzz-service/pkg/types/cryptography"
 	"net/http"
 )
 
 func Login(c *gin.Context) {
-
-	// get login payload from request body
-	var credentials entities.UserCredentials
+	var credentials types.UserCredentials
 	if err := c.Bind(&credentials); err != nil {
-		entities.ErrResp(c, http.StatusBadRequest, "invalid payload", nil)
+		types.ErrResp(c, http.StatusBadRequest, "invalid payload", nil)
 		return
 	}
 
-	// get user by username
+	// fetch user by email
 	user, isPresent := repository.GetByEmail(credentials.Email)
 	if !isPresent {
-		entities.ErrResp(c, http.StatusNotFound, "user not found", nil)
+		types.ErrResp(c, http.StatusNotFound, "user not found", nil)
 		return
 	}
 
-	// validate password with bcrypt
+	// validate incoming password with user password
 	if !cryptography.CheckPasswordHash(credentials.Password, user.Password) {
-		entities.ErrResp(c, http.StatusUnauthorized, "invalid credentials", nil)
+		types.ErrResp(c, http.StatusUnauthorized, "invalid credentials", nil)
 		return
 	}
 
 	token, err := cryptography.GenerateJWToken(string(rune(user.ID)))
 
 	if err != nil {
-		entities.ErrResp(
+		types.ErrResp(
 			c,
 			http.StatusInternalServerError,
-			"invalid credentials",
-			&entities.Extras{"id": user.ID},
+			"token generation failed",
+			&types.Extras{"id": user.ID, "reason": err.Error()},
 		)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "login successful", "token": token})
+	types.OkResp(c, http.StatusOK, types.LoginResponse{Token: token})
 }
