@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
+	server.Start()
 	// boot up server
 	fmt.Println("Booting up server in port 8080...")
-	server.Start()
 }
