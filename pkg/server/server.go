@@ -1,18 +1,18 @@
 package server
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"muzz-service/pkg/controllers"
 )
 
 func Start() {
-	// TODO fetch the port from the config
-	port := ":8080"
+	port := GetApplicationConfig().Port
 
 	router := gin.Default()
 	setupRoutes(router)
 
-	if err := router.Run(port); err != nil {
+	if err := router.Run(fmt.Sprintf(":%s", port)); err != nil {
 		// no server running, crash the program with no survivors
 		panic(err)
 	}
