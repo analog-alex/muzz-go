@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"muzz-service/pkg/repository"
 	"muzz-service/pkg/types"
@@ -26,7 +27,11 @@ func Create(c *gin.Context) {
 	}
 
 	user.Password = hashedPassword
-	persistedUser := repository.Create(user)
+	persistedUser, err := repository.CreateUser(user)
+	if err != nil {
+		types.ErrResp(c, http.StatusInternalServerError, "error creating user", nil)
+		return
+	}
 
 	// important: return the original password
 	persistedUser.Password = password
@@ -34,6 +39,12 @@ func Create(c *gin.Context) {
 }
 
 func GetAll(c *gin.Context) {
-	users := repository.GetAll()
+	users, err := repository.GetAllUsers()
+	if err != nil {
+		fmt.Println(err.Error())
+		types.ErrResp(c, http.StatusInternalServerError, "error fetching users", nil)
+		return
+	}
+
 	types.OkResp(c, http.StatusOK, users)
 }

@@ -3,12 +3,13 @@ package server
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"muzz-service/config"
 	"muzz-service/pkg/controllers"
 	"muzz-service/pkg/middleware"
 )
 
 func Start() {
-	port := GetApplicationConfig().Port
+	port := config.GetApplicationConfig().Port
 
 	router := gin.Default()
 	setupRoutes(router)

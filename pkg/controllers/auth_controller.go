@@ -6,6 +6,7 @@ import (
 	"muzz-service/pkg/types"
 	"muzz-service/pkg/types/cryptography"
 	"net/http"
+	"strconv"
 )
 
 func Login(c *gin.Context) {
@@ -16,11 +17,13 @@ func Login(c *gin.Context) {
 	}
 
 	// fetch user by email
-	user, isPresent := repository.GetByEmail(credentials.Email)
-	if !isPresent {
+	users, err := repository.GetUsersByEmail(credentials.Email)
+	if err != nil || len(users) == 0 || len(users) > 1 {
 		types.ErrResp(c, http.StatusNotFound, "user not found", nil)
 		return
 	}
+
+	user := users[0]
 
 	// validate incoming password with user password
 	if !cryptography.CheckPasswordHash(user.Password, credentials.Password) {
@@ -28,7 +31,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, err := cryptography.GenerateJWToken(string(rune(user.ID)))
+	token, err := cryptography.GenerateJWToken(strconv.Itoa(user.ID))
 
 	if err != nil {
 		types.ErrResp(
