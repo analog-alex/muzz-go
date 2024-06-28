@@ -23,7 +23,7 @@ func Login(c *gin.Context) {
 	}
 
 	// validate incoming password with user password
-	if !cryptography.CheckPasswordHash(credentials.Password, user.Password) {
+	if !cryptography.CheckPasswordHash(user.Password, credentials.Password) {
 		types.ErrResp(c, http.StatusUnauthorized, "invalid credentials", nil)
 		return
 	}

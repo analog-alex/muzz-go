@@ -43,8 +43,7 @@ func GenerateName() string {
 
 // GenerateEmail generates a random email address
 func GenerateEmail() string {
-	usernameLength := rand.Intn(10) + 5 // Random length between 5 and 14
-	username := firstNames[rand.Intn(len(firstNames))][:usernameLength]
+	username := firstNames[rand.Intn(len(firstNames))]
 	domains := []string{"gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "icloud.com"}
 	domain := domains[rand.Intn(len(domains))]
 	return fmt.Sprintf("%s@%s", strings.ToLower(username), domain)
@@ -52,10 +51,11 @@ func GenerateEmail() string {
 
 // GeneratePassword generates a random password
 func GeneratePassword() string {
+	availableCharacters := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
 	passwordLength := rand.Intn(10) + 8 // Random length between 8 and 17
 	password := make([]byte, passwordLength)
 	for i := 0; i < passwordLength; i++ {
-		password[i] = byte(rand.Intn(94) + 33) // Random printable ASCII character
+		password[i] = availableCharacters[rand.Intn(len(availableCharacters))]
 	}
 	return string(password)
 }

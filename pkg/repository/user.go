@@ -5,8 +5,8 @@ import "muzz-service/pkg/types"
 var users []types.User
 
 func GetAll() []types.User {
-	return users
 
+	return users
 }
 
 func Create(user types.User) types.User {
