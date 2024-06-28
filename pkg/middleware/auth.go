@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"muzz-service/pkg/entities"
 	"muzz-service/pkg/entities/cryptography"
-	"muzz-service/pkg/server"
 	"net/http"
 )
 
@@ -11,15 +11,15 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get("Authorization")
 		if token == "" {
-			server.ErrResp(c, http.StatusUnauthorized, "token required", nil)
+			entities.ErrResp(c, http.StatusUnauthorized, "token required", nil)
 			c.Abort()
 			return
 		}
 
 		// assert token is Bearer
 		if len(token) < 7 || token[:7] != "Bearer " {
-			server.ErrResp(
-				c, http.StatusUnauthorized, "invalid token format", &server.Extras{"invalid_token": token})
+			entities.ErrResp(
+				c, http.StatusUnauthorized, "invalid token format", &entities.Extras{"invalid_token": token})
 			c.Abort()
 			return
 		}
@@ -27,8 +27,8 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 		// remove Bearer from token and validate it
 		userId, err := cryptography.VerifyJWToken(token[7:])
 		if err != nil {
-			server.ErrResp(
-				c, http.StatusUnauthorized, "invalid token", &server.Extras{"invalid_token": token})
+			entities.ErrResp(
+				c, http.StatusUnauthorized, "invalid token", &entities.Extras{"invalid_token": token})
 			c.Abort()
 			return
 		}

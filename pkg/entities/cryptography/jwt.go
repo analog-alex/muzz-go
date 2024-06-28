@@ -7,9 +7,6 @@ import (
 	"time"
 )
 
-// TODO move to configuration file
-const superDuperSecret = "secret_singing_key"
-
 // GenerateJWToken create a jwt token with the given id
 func GenerateJWToken(id string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -26,6 +23,9 @@ func GenerateJWToken(id string) (string, error) {
 	}
 	return tokenString, nil
 }
+
+// TODO move to configuration file
+const superDuperSecret = "secret_singing_key"
 
 // VerifyJWToken verifies a jwt token
 func VerifyJWToken(tokenString string) (string, error) {

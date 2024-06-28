@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"muzz-service/pkg/controllers"
+	"muzz-service/pkg/middleware"
 )
 
 func Start() {
@@ -25,13 +26,13 @@ func setupRoutes(router *gin.Engine) {
 	router.GET("/health", controllers.Health)
 
 	// user endpoints
-	router.GET("/user", controllers.GetAll)
+	router.GET("/user", middleware.AuthorizationMiddleware(), controllers.GetAll)
 	router.POST("/user/create", controllers.Create)
 
 	// auth endpoints
 	router.POST("/login", controllers.Login)
 
 	// match endpoints
-	router.GET("/discover", controllers.Discover)
-	router.POST("/swipe", controllers.Swipe)
+	router.GET("/discover", middleware.AuthorizationMiddleware(), controllers.Discover)
+	router.POST("/swipe", middleware.AuthorizationMiddleware(), controllers.Swipe)
 }

@@ -1,4 +1,4 @@
-package server
+package entities
 
 import "github.com/gin-gonic/gin"
 
