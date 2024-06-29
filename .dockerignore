@@ -1,0 +1,10 @@
+# Exclude everything
+**
+
+# Include only the necessary files
+!/go.mod
+!/go.sum
+!/main.go
+!/pkg/
+!/db/
+!/config/
