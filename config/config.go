@@ -7,7 +7,7 @@ import (
 
 type Config struct {
 	Port       string `env:"PORT, default=8080"`
-	JwtSecret  string `env:"JWT_SECRET, default=ultra-secret-key"`
+	JwtSecret  string `env:"JWT_SECRET, default=secret_signing_key"`
 	DbHost     string `env:"DB_HOST, default=localhost"`
 	DbPort     string `env:"DB_PORT, default=5432"`
 	DbUser     string `env:"DB_USER, default=user"`

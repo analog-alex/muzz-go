@@ -4,8 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"muzz-service/config"
 	"time"
 )
+
+var superDuperSecret = config.GetApplicationConfig().JwtSecret
 
 // GenerateJWToken create a jwt token with the given id
 func GenerateJWToken(id string) (string, error) {
@@ -23,9 +26,6 @@ func GenerateJWToken(id string) (string, error) {
 	}
 	return tokenString, nil
 }
-
-// TODO move to configuration file
-const superDuperSecret = "secret_singing_key"
 
 // VerifyJWToken verifies a jwt token
 func VerifyJWToken(tokenString string) (string, error) {
