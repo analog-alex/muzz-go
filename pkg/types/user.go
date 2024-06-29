@@ -15,6 +15,7 @@ type User struct {
 
 	// operational data, not part of the "presentation" data
 	Distance float64 `json:"-"`
+	Likes    int     `json:"-"`
 }
 
 type UserCredentials struct {

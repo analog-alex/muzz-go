@@ -37,10 +37,7 @@ func GetAllUsersExcludingSwipes(id int, filters UsersFilter, sort UsersSort) ([]
 	`
 
 	enrichedQuery, params := applyFilters(query, []interface{}{id}, filters)
-
-	if sort.DistanceSort {
-		enrichedQuery += " ORDER BY distance ASC"
-	}
+	enrichedQuery = applySorters(enrichedQuery, sort)
 
 	r, err := conn.Query(context.Background(), enrichedQuery, params...)
 	if err != nil {
@@ -84,6 +81,21 @@ func CreateUser(user types.User) (types.User, error) {
 	}
 
 	return user, nil
+}
+
+func IncrementsLikesForUser(id int) error {
+	query := `
+		UPDATE application_users
+		SET likes = likes + 1
+		WHERE id = $1
+	`
+
+	_, err := conn.Exec(context.Background(), query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // private functions
@@ -146,4 +158,22 @@ func applyFilters(query string, params []interface{}, filters UsersFilter) (stri
 	}
 
 	return query, params
+}
+
+func applySorters(query string, sort UsersSort) string {
+	var orderClauses []string
+
+	if sort.DistanceSort {
+		orderClauses = append(orderClauses, "distance ASC")
+	}
+
+	if sort.AttractivenessSort {
+		orderClauses = append(orderClauses, "likes DESC")
+	}
+
+	if len(orderClauses) > 0 {
+		query += " ORDER BY " + strings.Join(orderClauses, ", ")
+	}
+
+	return query
 }

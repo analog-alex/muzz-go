@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"muzz-service/pkg/cryptography"
 	"muzz-service/pkg/dao"
 	"muzz-service/pkg/types"
@@ -34,6 +34,8 @@ func Create(c *gin.Context) {
 		return
 	}
 
+	log.Println("New user created with id:", persistedUser.ID)
+
 	// important: return the original password
 	persistedUser.Password = password
 	types.OkResp(c, http.StatusCreated, persistedUser)
@@ -42,7 +44,6 @@ func Create(c *gin.Context) {
 func GetAll(c *gin.Context) {
 	users, err := dao.GetAllUsers()
 	if err != nil {
-		fmt.Println(err.Error())
 		types.ErrResp(c, http.StatusInternalServerError, "error fetching users", nil)
 		return
 	}

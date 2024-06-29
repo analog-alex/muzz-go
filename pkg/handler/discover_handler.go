@@ -24,7 +24,8 @@ func Discover(c *gin.Context) {
 	}
 
 	sort := dao.UsersSort{
-		DistanceSort: c.Query("sort_distance") == "true",
+		DistanceSort:       c.Query("sort_distance") == "true",
+		AttractivenessSort: c.Query("sort_attractiveness") == "true",
 	}
 
 	if err := filters.Validate(); err != nil {

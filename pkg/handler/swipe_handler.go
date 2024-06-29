@@ -4,8 +4,10 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgconn"
+	"log"
 	"muzz-service/pkg/dao"
 	"muzz-service/pkg/types"
+	"muzz-service/pkg/workers"
 	"net/http"
 	"strconv"
 )
@@ -54,28 +56,39 @@ func Swipe(c *gin.Context) {
 		return
 	}
 
-	// check if there is a match
-	rightSwipe, err := dao.CheckSwipeRight(swipeModel.To, swipeModel.From)
-	if err != nil {
-		types.ErrResp(c, http.StatusInternalServerError, "error checking swipe", nil)
-		return
-	}
+	if swipeModel.Accept {
+		// send a notification to the ranker worker that someone swiped right on target user
+		workers.GetRankerQueue() <- swipeModel.To
 
-	if rightSwipe {
-		// create a match record as well
-		match := types.Match{
-			UserOneID: swipeModel.From,
-			UserTwoID: swipeModel.To,
-		}
-
-		_, err := dao.CreateMatch(match)
+		// check if there is a match i.e. target user has swiped right on the current user
+		isMutualSwipe, err := dao.CheckSwipeRight(swipeModel.To, swipeModel.From)
 		if err != nil {
-			types.ErrResp(c, http.StatusInternalServerError, "error creating match", nil)
+			types.ErrResp(c, http.StatusInternalServerError, "error checking swipe", nil)
 			return
 		}
 
-		types.OkResp(c, http.StatusOK, types.SwipeResponse{Matched: true, MatchId: &match.UserTwoID})
+		if isMutualSwipe {
+			log.Println("Matched! ", swipeModel.From, " and ", swipeModel.To)
+
+			// create a match record as well
+			match := types.Match{
+				UserOneID: swipeModel.From,
+				UserTwoID: swipeModel.To,
+			}
+
+			_, err := dao.CreateMatch(match)
+			if err != nil {
+				types.ErrResp(c, http.StatusInternalServerError, "error creating match", nil)
+				return
+			}
+
+			types.OkResp(c, http.StatusOK, types.SwipeResponse{Matched: true, MatchId: &match.UserTwoID})
+		} else {
+			types.OkResp(c, http.StatusOK, types.SwipeResponse{Matched: false, MatchId: nil})
+		}
+
 	} else {
 		types.OkResp(c, http.StatusOK, types.SwipeResponse{Matched: false, MatchId: nil})
 	}
+
 }

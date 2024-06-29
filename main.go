@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"muzz-service/apis"
 	"muzz-service/config"
 )
 
 func main() {
-	fmt.Println("Booting up server in port 8080...")
+	log.Println("Booting up server in port 8080...")
 
 	// get configs
 	port := config.GetApplicationConfig().Port

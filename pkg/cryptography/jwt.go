@@ -21,7 +21,6 @@ func GenerateJWToken(id string) (string, error) {
 
 	tokenString, err := token.SignedString([]byte(superDuperSecret))
 	if err != nil {
-		fmt.Println("Error generating token:", err)
 		return "", err
 	}
 	return tokenString, nil

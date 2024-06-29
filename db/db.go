@@ -52,8 +52,9 @@ func AddTables() {
 			email      VARCHAR(255) NOT NULL,
 			gender     VARCHAR(1) NOT NULL,
 			age        INT NOT NULL,
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			location GEOGRAPHY(POINT, 4326)	
+			location   GEOGRAPHY(POINT, 4326),	
+			likes 	   INT NOT NULL DEFAULT 0,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 		);
 	`)
 	if err != nil {

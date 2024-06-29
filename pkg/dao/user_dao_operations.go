@@ -12,7 +12,8 @@ type UsersFilter struct {
 }
 
 type UsersSort struct {
-	DistanceSort bool
+	DistanceSort       bool
+	AttractivenessSort bool
 }
 
 func (uf *UsersFilter) Validate() error {
