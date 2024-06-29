@@ -3,11 +3,8 @@ package repository
 import (
 	"context"
 	"github.com/jackc/pgx/v5"
-	"muzz-service/db"
 	"muzz-service/pkg/types"
 )
-
-var conn = db.GetDB()
 
 func GetAllUsers() ([]types.User, error) {
 	query := "SELECT id, email, username, password, gender, age FROM application_users"
@@ -20,10 +17,14 @@ func GetAllUsers() ([]types.User, error) {
 	return rowMapper(r)
 }
 
-func GetAllUsersExcluding(id int) ([]types.User, error) {
+func GetAllUsersExcludingSwipes(id int) ([]types.User, error) {
 	query := `
-		SELECT id, email, username, password, gender, age FROM application_users
-		WHERE id <> $1
+		SELECT u.id, u.email, u.username, u.password, u.gender, u.age
+		FROM application_users u
+		-- filter out the users that have been swiped by the current user
+		LEFT JOIN swipes s ON u.id = s.to_id AND s.from_id = $1
+		WHERE u.id <> $1 
+			AND s.to_id IS NULL
 	`
 
 	r, err := conn.Query(context.Background(), query, id)
