@@ -23,13 +23,17 @@ func Discover(c *gin.Context) {
 		Gender: c.Query("gender"),
 	}
 
+	sort := dao.UsersSort{
+		DistanceSort: c.Query("sort_distance") == "true",
+	}
+
 	if err := filters.Validate(); err != nil {
 		types.ErrResp(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
 	// get all users except the current user
-	users, err := dao.GetAllUsersExcludingSwipes(userId, filters)
+	users, err := dao.GetAllUsersExcludingSwipes(userId, filters, sort)
 
 	if err != nil {
 		types.ErrResp(c, http.StatusInternalServerError, "error fetching users", nil)
@@ -40,6 +44,7 @@ func Discover(c *gin.Context) {
 	profiles := make([]types.UserProfile, len(users))
 	for i, user := range users {
 		profiles[i] = user.ToUserProfile()
+		profiles[i].HumanizeDistance()
 	}
 
 	types.OkResp(c, http.StatusOK, profiles)

@@ -22,9 +22,11 @@ func GetAllUsers() ([]types.User, error) {
 	return rowMapper(r)
 }
 
-func GetAllUsersExcludingSwipes(id int, filters UsersFilter) ([]types.User, error) {
+func GetAllUsersExcludingSwipes(id int, filters UsersFilter, sort UsersSort) ([]types.User, error) {
 	query := `
-		SELECT u.id, u.email, u.username, u.password, u.gender, u.age
+		SELECT 
+			u.id, u.email, u.username, u.password, u.gender, u.age,
+			ST_Distance(location, (select location from application_users where id = $1)) AS distance
 		FROM application_users u
 		    
 		-- filter out the users that have been swiped by the current user
@@ -36,13 +38,16 @@ func GetAllUsersExcludingSwipes(id int, filters UsersFilter) ([]types.User, erro
 
 	enrichedQuery, params := applyFilters(query, []interface{}{id}, filters)
 
+	if sort.DistanceSort {
+		enrichedQuery += " ORDER BY distance ASC"
+	}
+
 	r, err := conn.Query(context.Background(), enrichedQuery, params...)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
-	return rowMapper(r)
+	return rowMapperWithDistance(r)
 }
 
 func GetUsersByEmail(email string) ([]types.User, error) {
@@ -61,8 +66,15 @@ func GetUsersByEmail(email string) ([]types.User, error) {
 
 func CreateUser(user types.User) (types.User, error) {
 	insert := `
-		INSERT INTO application_users (email, username, password, gender, age)
-		VALUES ($1, $2, $3, $4, $5) 
+		INSERT INTO application_users (email, username, password, gender, age, location)
+		VALUES ($1, $2, $3, $4, $5, ST_SetSRID(
+					-- insert random point for location			
+                    ST_MakePoint(
+                        random() * (180 - (-180)) + (-180),
+                        random() * (90 - (-90)) + (-90)
+                    ),
+                    4326
+                )) 
 		RETURNING id
 	`
 
@@ -75,6 +87,23 @@ func CreateUser(user types.User) (types.User, error) {
 }
 
 // private functions
+
+func rowMapperWithDistance(r pgx.Rows) ([]types.User, error) {
+	users := make([]types.User, 0)
+
+	for r.Next() {
+		var user types.User
+
+		err := r.Scan(&user.ID, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Age, &user.Distance)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
+}
 
 func rowMapper(r pgx.Rows) ([]types.User, error) {
 	users := make([]types.User, 0)
