@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"muzz-service/pkg/cryptography"
 	"muzz-service/pkg/types"
-	"muzz-service/pkg/types/cryptography"
 	"net/http"
 )
 

@@ -1,10 +1,10 @@
-package controllers
+package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"muzz-service/pkg/repository"
+	cryptography2 "muzz-service/pkg/cryptography"
+	"muzz-service/pkg/dao"
 	"muzz-service/pkg/types"
-	"muzz-service/pkg/types/cryptography"
 	"net/http"
 	"strconv"
 )
@@ -17,7 +17,7 @@ func Login(c *gin.Context) {
 	}
 
 	// fetch user by email
-	users, err := repository.GetUsersByEmail(credentials.Email)
+	users, err := dao.GetUsersByEmail(credentials.Email)
 	if err != nil || len(users) == 0 || len(users) > 1 {
 		types.ErrResp(c, http.StatusNotFound, "user not found", nil)
 		return
@@ -26,12 +26,12 @@ func Login(c *gin.Context) {
 	user := users[0]
 
 	// validate incoming password with user password
-	if !cryptography.CheckPasswordHash(user.Password, credentials.Password) {
+	if !cryptography2.CheckPasswordHash(user.Password, credentials.Password) {
 		types.ErrResp(c, http.StatusUnauthorized, "invalid credentials", nil)
 		return
 	}
 
-	token, err := cryptography.GenerateJWToken(strconv.Itoa(user.ID))
+	token, err := cryptography2.GenerateJWToken(strconv.Itoa(user.ID))
 
 	if err != nil {
 		types.ErrResp(

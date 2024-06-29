@@ -1,34 +1,14 @@
-package controllers
+package handler
 
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgconn"
-	"muzz-service/pkg/repository"
+	"muzz-service/pkg/dao"
 	"muzz-service/pkg/types"
 	"net/http"
 	"strconv"
 )
-
-func Discover(c *gin.Context) {
-	// as this is a protected route, we can get the userId from the context
-	userCtx, _ := c.Get("userId")
-	userId, err := strconv.Atoi(userCtx.(string))
-	if err != nil {
-		types.ErrResp(c, 500, "error fetching user id from context", nil)
-		return
-	}
-
-	// get all users except the current user
-	users, err := repository.GetAllUsersExcludingSwipes(userId)
-
-	if err != nil {
-		types.ErrResp(c, http.StatusInternalServerError, "error fetching users", nil)
-		return
-	}
-
-	types.OkResp(c, http.StatusOK, users)
-}
 
 func Swipe(c *gin.Context) {
 	var swipe types.SwipeRequest
@@ -58,7 +38,7 @@ func Swipe(c *gin.Context) {
 		To:     swipe.UserId,
 	}
 
-	_, err = repository.CreateSwipe(swipeModel)
+	_, err = dao.CreateSwipe(swipeModel)
 	if err != nil {
 
 		// check if the error is due to a duplicate swipe
@@ -75,7 +55,7 @@ func Swipe(c *gin.Context) {
 	}
 
 	// check if there is a match
-	rightSwipe, err := repository.CheckSwipeRight(swipeModel.To, swipeModel.From)
+	rightSwipe, err := dao.CheckSwipeRight(swipeModel.To, swipeModel.From)
 	if err != nil {
 		types.ErrResp(c, http.StatusInternalServerError, "error checking swipe", nil)
 		return
@@ -88,7 +68,7 @@ func Swipe(c *gin.Context) {
 			UserTwoID: swipeModel.To,
 		}
 
-		_, err := repository.CreateMatch(match)
+		_, err := dao.CreateMatch(match)
 		if err != nil {
 			types.ErrResp(c, http.StatusInternalServerError, "error creating match", nil)
 			return

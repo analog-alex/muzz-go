@@ -5,7 +5,8 @@ clean:
 	-fuser -k 8080/tcp || true
 
 run: clean
-	go run main.go
+	@echo "Running the application"
+	export GIN_MODE=release && go run main.go
 
 build:
 	go build -o bin/main main.go

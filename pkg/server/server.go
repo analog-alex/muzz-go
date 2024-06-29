@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"muzz-service/config"
-	"muzz-service/pkg/controllers"
+	"muzz-service/pkg/handler"
 	"muzz-service/pkg/middleware"
 )
 
@@ -24,16 +24,16 @@ func Start() {
 // centralized view over all the API endpoints exposed
 func setupRoutes(router *gin.Engine) {
 	// actuator-like endpoints
-	router.GET("/health", controllers.Health)
+	router.GET("/health", handler.Health)
 
 	// user endpoints
-	router.GET("/user", middleware.AuthorizationMiddleware(), controllers.GetAll)
-	router.POST("/user/create", controllers.Create)
+	router.GET("/user", middleware.AuthorizationMiddleware(), handler.GetAll)
+	router.POST("/user/create", handler.Create)
 
 	// auth endpoints
-	router.POST("/login", controllers.Login)
+	router.POST("/login", handler.Login)
 
 	// match endpoints
-	router.GET("/discover", middleware.AuthorizationMiddleware(), controllers.Discover)
-	router.POST("/swipe", middleware.AuthorizationMiddleware(), controllers.Swipe)
+	router.GET("/discover", middleware.AuthorizationMiddleware(), handler.Discover)
+	router.POST("/swipe", middleware.AuthorizationMiddleware(), handler.Swipe)
 }

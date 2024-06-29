@@ -1,21 +1,22 @@
-package controllers
+package handler
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"muzz-service/pkg/repository"
+	"muzz-service/pkg/cryptography"
+	"muzz-service/pkg/dao"
 	"muzz-service/pkg/types"
-	"muzz-service/pkg/types/cryptography"
+	"muzz-service/pkg/types/dummies"
 	"net/http"
 )
 
 func Create(c *gin.Context) {
 	user := types.User{
-		Email:    types.GenerateEmail(),
-		Password: types.GeneratePassword(),
-		Name:     types.GenerateName(),
-		Gender:   types.GenerateGender(),
-		Age:      types.GenerateAge(),
+		Email:    dummies.GenerateEmail(),
+		Password: dummies.GeneratePassword(),
+		Name:     dummies.GenerateName(),
+		Gender:   dummies.GenerateGender(),
+		Age:      dummies.GenerateAge(),
 	}
 
 	// hash the password but keep the value of original password
@@ -27,7 +28,7 @@ func Create(c *gin.Context) {
 	}
 
 	user.Password = hashedPassword
-	persistedUser, err := repository.CreateUser(user)
+	persistedUser, err := dao.CreateUser(user)
 	if err != nil {
 		types.ErrResp(c, http.StatusInternalServerError, "error creating user", nil)
 		return
@@ -39,7 +40,7 @@ func Create(c *gin.Context) {
 }
 
 func GetAll(c *gin.Context) {
-	users, err := repository.GetAllUsers()
+	users, err := dao.GetAllUsers()
 	if err != nil {
 		fmt.Println(err.Error())
 		types.ErrResp(c, http.StatusInternalServerError, "error fetching users", nil)
