@@ -19,8 +19,7 @@ var config Config
 
 func init() {
 	config = Config{}
-	ctx := context.Background()
-	if err := envconfig.Process(ctx, &config); err != nil {
+	if err := envconfig.Process(context.Background(), &config); err != nil {
 		panic(err)
 	}
 }

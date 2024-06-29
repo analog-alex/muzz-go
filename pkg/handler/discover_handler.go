@@ -17,8 +17,19 @@ func Discover(c *gin.Context) {
 		return
 	}
 
+	filters := dao.UsersFilter{
+		MinAge: c.Query("min_age"),
+		MaxAge: c.Query("max_age"),
+		Gender: c.Query("gender"),
+	}
+
+	if err := filters.Validate(); err != nil {
+		types.ErrResp(c, http.StatusBadRequest, err.Error(), nil)
+		return
+	}
+
 	// get all users except the current user
-	users, err := dao.GetAllUsersExcludingSwipes(userId)
+	users, err := dao.GetAllUsersExcludingSwipes(userId, filters)
 
 	if err != nil {
 		types.ErrResp(c, http.StatusInternalServerError, "error fetching users", nil)
