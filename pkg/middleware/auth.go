@@ -34,7 +34,7 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 		}
 
 		// set context and continue
-		c.Set("userId", userId) // we should enrich this with more user data
+		c.Set("userId", userId) // we can enrich this with more user data
 		c.Next()
 	}
 }

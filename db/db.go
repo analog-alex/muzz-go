@@ -26,13 +26,14 @@ func init() {
 
 	p, err := pgxpool.New(context.Background(), connectionString)
 	if err != nil {
+		// can't connect to the database, crash the program
 		panic(err)
 	}
 
 	pool = p
 
 	// add tables
-	// statements are already idempotent
+	// statements are already idempotent, so we can run them every time
 	// in a real world scenario, use a migration tool
 	AddTables()
 }
@@ -52,6 +53,7 @@ func AddTables() {
 			email      VARCHAR(255) NOT NULL UNIQUE,
 			gender     VARCHAR(1) NOT NULL,
 			age        INT NOT NULL,
+			-- 4326 is the Spatial Reference System ID for WGS 84 (latitude, longitude)
 			location   GEOGRAPHY(POINT, 4326),	
 			likes 	   INT NOT NULL DEFAULT 0,
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func Create(c *gin.Context) {
+func CreateUser(c *gin.Context) {
 	user := types.User{
 		Email:    dummies.GenerateUniqueEmail(),
 		Password: dummies.GeneratePassword(),
@@ -39,14 +39,4 @@ func Create(c *gin.Context) {
 	// important: return the original password
 	persistedUser.Password = password
 	types.OkResp(c, http.StatusCreated, persistedUser)
-}
-
-func GetAll(c *gin.Context) {
-	users, err := dao.GetAllUsers()
-	if err != nil {
-		types.ErrResp(c, http.StatusInternalServerError, "error fetching users", nil)
-		return
-	}
-
-	types.OkResp(c, http.StatusOK, users)
 }

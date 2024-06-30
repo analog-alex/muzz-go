@@ -13,8 +13,7 @@ func Routes() *gin.Engine {
 	router.GET("/health", handler.Health)
 
 	// user endpoints
-	router.GET("/user", middleware.AuthorizationMiddleware(), handler.GetAll)
-	router.POST("/user/create", handler.Create)
+	router.POST("/user/create", handler.CreateUser)
 
 	// auth endpoints
 	router.POST("/login", handler.Login)
@@ -22,6 +21,6 @@ func Routes() *gin.Engine {
 	// match endpoints
 	router.GET("/discover", middleware.AuthorizationMiddleware(), handler.Discover)
 	router.POST("/swipe", middleware.AuthorizationMiddleware(), handler.Swipe)
-	
+
 	return router
 }

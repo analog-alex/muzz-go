@@ -5,14 +5,24 @@ import (
 	"muzz-service/pkg/dao"
 )
 
+// This worker simulates a 'event-driven' system that reacts to swipe events.
+// The idea here is to receive a user id everytime a user is swiped right on.
+// This is a very primitive ranking system that just increments the number of likes.
+//
+// The more likes a user has, the higher the ranking.
+// the likes are stored in the user table and can be used to order users.
+// by 'attractiveness'
+//
+// Should be called by the swipe_handler.
+
 var queue = make(chan int)
 
 func start() {
+	log.Println("Starting ranker worker")
 	defer close(queue)
 
-	log.Println("Starting ranker worker")
-
 	// infinite loop
+	// we await 'events' from the channel
 	for {
 		id := <-queue
 
