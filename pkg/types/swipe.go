@@ -7,11 +7,11 @@ type Swipe struct {
 }
 
 type SwipeRequest struct {
-	UserId     int    `json:"user_id"`
+	UserId     int    `json:"userId"`
 	Preference string `json:"preference"`
 }
 
 type SwipeResponse struct {
 	Matched bool `json:"matched"`
-	MatchId *int `json:"match_id,omitempty"`
+	MatchId *int `json:"matchId,omitempty"`
 }

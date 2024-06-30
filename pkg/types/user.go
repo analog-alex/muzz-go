@@ -28,7 +28,7 @@ type UserProfile struct {
 	Name     string  `json:"name"`
 	Gender   string  `json:"gender"`
 	Age      uint8   `json:"age"`
-	Distance float64 `json:"distance_from_me,omitempty"`
+	Distance float64 `json:"distanceFromMe,omitempty"`
 }
 
 func (u *User) ToUserProfile() UserProfile {
