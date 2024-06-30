@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"errors"
@@ -92,12 +92,9 @@ func Swipe(c *gin.Context) {
 			}
 
 			types.OkResp(c, http.StatusOK, types.SwipeResponse{Matched: true, MatchId: &match.UserTwoID})
-		} else {
-			types.OkResp(c, http.StatusOK, types.SwipeResponse{Matched: false, MatchId: nil})
 		}
 
-	} else {
-		types.OkResp(c, http.StatusOK, types.SwipeResponse{Matched: false, MatchId: nil})
 	}
 
+	types.OkResp(c, http.StatusOK, types.SwipeResponse{Matched: false, MatchId: nil})
 }
