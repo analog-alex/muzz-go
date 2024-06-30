@@ -19,6 +19,8 @@ func Swipe(c *gin.Context) {
 		return
 	}
 
+	log.Println("swipe request: ", swipe)
+
 	// as this is a protected route, we can get the userId from the context
 	userCtx, _ := c.Get("userId")
 	userId, err := strconv.Atoi(userCtx.(string))
@@ -30,6 +32,13 @@ func Swipe(c *gin.Context) {
 	// check if user is not swiping themselves
 	if userId == swipe.UserId {
 		types.ErrResp(c, http.StatusBadRequest, "cannot swipe yourself", nil)
+		return
+	}
+
+	// check if the target user exists
+	_, err = dao.GetUserById(swipe.UserId)
+	if err != nil {
+		types.ErrResp(c, http.StatusNotFound, "target user not found", nil)
 		return
 	}
 

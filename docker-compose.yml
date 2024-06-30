@@ -23,11 +23,20 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=mzz
       - GIN_MODE=debug
-      - PORT=80
+      - PORT=8080
     ports:
-      - "80:80"
+      - "8080:8080"
     depends_on:
       - postgres
+
+  e2e-test:
+    build:
+      context: .
+      dockerfile: Dockerfile-e2e-tests.yml
+    environment:
+      - HOST=app
+      - PORT=8080
+    command: python ./e2e.py
 
 volumes:
   postgres_data:

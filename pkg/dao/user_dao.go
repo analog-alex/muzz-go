@@ -8,18 +8,20 @@ import (
 	"strings"
 )
 
-func GetAllUsers() ([]types.User, error) {
+func GetUserById(id int) (types.User, error) {
 	query := `
-		SELECT id, email, username, password, gender, age 
+		SELECT id, email, username
 		FROM application_users
+		WHERE id = $1
 	`
-	r, err := conn.Query(context.Background(), query)
 
+	var user types.User
+	err := conn.QueryRow(context.Background(), query, id).Scan(&user.ID, &user.Email, &user.Name)
 	if err != nil {
-		return nil, err
+		return types.User{}, err
 	}
 
-	return rowMapper(r)
+	return user, nil
 }
 
 func GetAllUsersExcludingSwipes(id int, filters UsersFilter, sort UsersSort) ([]types.User, error) {

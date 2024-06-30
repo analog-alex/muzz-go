@@ -8,4 +8,5 @@
 !/pkg/
 !/db/
 !/config/
-!/apis/
+!/api/
+!/test/
