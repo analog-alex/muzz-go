@@ -34,6 +34,24 @@ var lastNames = []string{
 	"Anderson",
 }
 
+var usedEmails = make(map[string]bool)
+
+func randomString(size int) string {
+	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, size)
+	for i := range b {
+		b[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(b)
+}
+
+func generateEmail() string {
+	username := firstNames[rand.Intn(len(firstNames))] + randomString(3)
+	domains := []string{"gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "icloud.com"}
+	domain := domains[rand.Intn(len(domains))]
+	return fmt.Sprintf("%s@%s", strings.ToLower(username), domain)
+}
+
 // GenerateName generates a random name
 func GenerateName() string {
 	firstName := firstNames[rand.Intn(len(firstNames))]
@@ -41,12 +59,14 @@ func GenerateName() string {
 	return fmt.Sprintf("%s %s", firstName, lastName)
 }
 
-// GenerateEmail generates a random email address
-func GenerateEmail() string {
-	username := firstNames[rand.Intn(len(firstNames))]
-	domains := []string{"gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "icloud.com"}
-	domain := domains[rand.Intn(len(domains))]
-	return fmt.Sprintf("%s@%s", strings.ToLower(username), domain)
+// GenerateUniqueEmail generates a random email address that has not been used before
+func GenerateUniqueEmail() string {
+	email := generateEmail()
+	for usedEmails[email] {
+		email = generateEmail()
+	}
+	usedEmails[email] = true
+	return email
 }
 
 // GeneratePassword generates a random password

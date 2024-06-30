@@ -12,7 +12,7 @@ import (
 
 func Create(c *gin.Context) {
 	user := types.User{
-		Email:    dummies.GenerateEmail(),
+		Email:    dummies.GenerateUniqueEmail(),
 		Password: dummies.GeneratePassword(),
 		Name:     dummies.GenerateName(),
 		Gender:   dummies.GenerateGender(),

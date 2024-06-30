@@ -49,7 +49,7 @@ func AddTables() {
 			id         SERIAL PRIMARY KEY,
 			username   VARCHAR(255) NOT NULL,
 			password   VARCHAR(255) NOT NULL,
-			email      VARCHAR(255) NOT NULL,
+			email      VARCHAR(255) NOT NULL UNIQUE,
 			gender     VARCHAR(1) NOT NULL,
 			age        INT NOT NULL,
 			location   GEOGRAPHY(POINT, 4326),	
