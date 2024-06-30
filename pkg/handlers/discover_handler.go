@@ -48,5 +48,5 @@ func Discover(c *gin.Context) {
 		profiles[i].HumanizeDistance()
 	}
 
-	types.OkResp(c, http.StatusOK, profiles)
+	types.OkResp(c, http.StatusOK, types.UserProfilesResponse{Results: profiles})
 }

@@ -52,7 +52,7 @@ func AddTables() {
 			password   VARCHAR(255) NOT NULL,
 			email      VARCHAR(255) NOT NULL UNIQUE,
 			gender     VARCHAR(1) NOT NULL,
-			age        INT NOT NULL,
+			dob        DATE NOT NULL,
 			-- 4326 is the Spatial Reference System ID for WGS 84 (latitude, longitude)
 			location   GEOGRAPHY(POINT, 4326),	
 			likes 	   INT NOT NULL DEFAULT 0,

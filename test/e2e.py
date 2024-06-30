@@ -2,6 +2,7 @@
 # unless you have python installed, run this inside the docker container
 import os
 import requests
+import time
 
 protocol = os.getenv('PROTOCOL', 'http')
 host = os.getenv('HOST', 'localhost')
@@ -32,7 +33,7 @@ def create_user():
 
     # parse the response
     response_json = response.json()
-    return response_json['id'], response_json['email'], response_json['password']
+    return response_json['result']['id'], response_json['result']['email'], response_json['result']['password']
 
 
 def login_user(user_email, user_password):
@@ -83,6 +84,7 @@ def discover(token, query_params, assert_func=None):
 # run the tests
 if __name__ == '__main__':
     print('Running health check')
+    time.sleep(2) # wait for the server to start -- this could be way more reliable by retrying the health check
     heath_check()
 
     print('Creating users')
@@ -99,11 +101,12 @@ if __name__ == '__main__':
     print('Swiping')
 
     def assert_swipe_no_match(response):
-        assert response['matched'] is False
+        assert response['results']['matched'] is False
+        assert response['results'].get('matchID') is None
 
     def assert_swipe_match(response):
-        assert response['matched'] is True
-        assert response['matchId'] is not None
+        assert response['results']['matched'] is True
+        assert response['results']['matchID'] is not None
 
     swipe(user_one_token, user_two_id, 'YES', assert_swipe_no_match)
     swipe(user_two_token, user_one_id, 'YES', assert_swipe_match)
@@ -111,7 +114,7 @@ if __name__ == '__main__':
     print('Discovering')
 
     def assert_discover_no_users_swiped(response):
-        for user in response:
+        for user in response['results']:
             assert user['id'] != user_one_id
             assert user['id'] != user_two_id
 
@@ -119,7 +122,7 @@ if __name__ == '__main__':
 
     # assert filters
     def assert_discover_filter(response):
-        for user in response:
+        for user in response['results']:
             assert user['age'] >= 20
             assert user['age'] <= 50
             assert user['gender'] == 'F'
@@ -129,7 +132,7 @@ if __name__ == '__main__':
     # assert sort
     def assert_discover_sort(response):
         last_distance = None
-        for user in response:
+        for user in response['results']:
             if last_distance:
                 assert user['distanceFromMe'] >= last_distance
             last_distance = user['distanceFromMe']

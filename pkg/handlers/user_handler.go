@@ -16,7 +16,7 @@ func CreateUser(c *gin.Context) {
 		Password: dummies.GeneratePassword(),
 		Name:     dummies.GenerateName(),
 		Gender:   dummies.GenerateGender(),
-		Age:      dummies.GenerateAge(),
+		Dob:      dummies.GenerateDateOfBirth(),
 	}
 
 	// hash the password but keep the value of original password
@@ -38,5 +38,5 @@ func CreateUser(c *gin.Context) {
 
 	// important: return the original password
 	persistedUser.Password = password
-	types.OkResp(c, http.StatusCreated, persistedUser)
+	types.OkResp(c, http.StatusCreated, types.UserCreatedResponse{Result: persistedUser})
 }

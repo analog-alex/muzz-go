@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+	"time"
 )
 
 var firstNames = []string{
@@ -91,7 +92,25 @@ func GenerateGender() string {
 	return genders[rand.Intn(len(genders))]
 }
 
-// GenerateAge generates a random age value between 18 and 82
-func GenerateAge() uint8 {
-	return uint8(rand.Intn(65) + 18)
+// GenerateDateOfBirth generates a random age value between 18 and 82
+func GenerateDateOfBirth() time.Time {
+	year := time.Now().Year() - (rand.Intn(82-18+1) + 18)
+	month := time.Month(rand.Intn(12) + 1)
+
+	var day int
+	switch month {
+	case 4, 6, 9, 11:
+		day = rand.Intn(30) + 1
+	case 2:
+		if year%4 == 0 && (year%100 != 0 || year%400 == 0) {
+			day = rand.Intn(29) + 1 // Leap year
+		} else {
+			day = rand.Intn(28) + 1
+		}
+	default:
+		day = rand.Intn(31) + 1
+	}
+
+	// Create and return the random date
+	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 }

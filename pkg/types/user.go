@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 	"strconv"
+	"time"
 )
 
 type User struct {
@@ -14,8 +15,9 @@ type User struct {
 	Age      uint8  `json:"age"`
 
 	// operational data, not part of the "presentation" data
-	Distance float64 `json:"-"`
-	Likes    int     `json:"-"`
+	Distance float64   `json:"-"`
+	Likes    int       `json:"-"`
+	Dob      time.Time `json:"-"`
 }
 
 type UserCredentials struct {
@@ -31,7 +33,21 @@ type UserProfile struct {
 	Distance float64 `json:"distanceFromMe,omitempty"`
 }
 
+type UserCreatedResponse struct {
+	Result User `json:"result"`
+}
+
+type UserProfilesResponse struct {
+	Results []UserProfile `json:"results"`
+}
+
+func (u *User) UpdateAgeFromDateOfBirth() {
+	u.Age = uint8(time.Now().Year() - u.Dob.Year())
+}
+
 func (u *User) ToUserProfile() UserProfile {
+	u.UpdateAgeFromDateOfBirth()
+
 	return UserProfile{
 		ID:       u.ID,
 		Name:     u.Name,

@@ -37,6 +37,8 @@ services:
       - HOST=app
       - PORT=80
     command: python ./e2e.py
+    depends_on:
+      - app
 
 volumes:
   postgres_data:

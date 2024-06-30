@@ -91,10 +91,16 @@ func Swipe(c *gin.Context) {
 				return
 			}
 
-			types.OkResp(c, http.StatusOK, types.SwipeResponse{Matched: true, MatchId: &match.UserTwoID})
+			types.OkResp(c, http.StatusOK, types.SwipeResponse{
+				Result: types.SwipeInnerResponse{Matched: true, MatchId: &match.UserTwoID},
+			})
+
+			return
 		}
 
 	}
 
-	types.OkResp(c, http.StatusOK, types.SwipeResponse{Matched: false, MatchId: nil})
+	types.OkResp(c, http.StatusOK, types.SwipeResponse{
+		Result: types.SwipeInnerResponse{Matched: false, MatchId: nil},
+	})
 }

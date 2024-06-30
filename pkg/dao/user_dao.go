@@ -27,7 +27,7 @@ func GetUserById(id int) (types.User, error) {
 func GetAllUsersExcludingSwipes(id int, filters UsersFilter, sort UsersSort) ([]types.User, error) {
 	query := `
 		SELECT 
-			u.id, u.email, u.username, u.password, u.gender, u.age,
+			u.id, u.email, u.username, u.password, u.gender, u.dob,
 			ST_Distance(location, (select location from application_users where id = $1)) AS distance
 		FROM application_users u
 		    
@@ -51,7 +51,7 @@ func GetAllUsersExcludingSwipes(id int, filters UsersFilter, sort UsersSort) ([]
 
 func GetUsersByEmail(email string) ([]types.User, error) {
 	query := `
-		SELECT id, email, username, password, gender, age FROM application_users
+		SELECT id, email, username, password, gender, dob FROM application_users
 		WHERE email = $1
 	`
 
@@ -65,7 +65,7 @@ func GetUsersByEmail(email string) ([]types.User, error) {
 
 func CreateUser(user types.User) (types.User, error) {
 	insert := `
-		INSERT INTO application_users (email, username, password, gender, age, location)
+		INSERT INTO application_users (email, username, password, gender, dob, location)
 		VALUES ($1, $2, $3, $4, $5, ST_SetSRID(
 					-- insert random point for location			
                     ST_MakePoint(
@@ -77,11 +77,12 @@ func CreateUser(user types.User) (types.User, error) {
 		RETURNING id
 	`
 
-	err := conn.QueryRow(context.Background(), insert, user.Email, user.Name, user.Password, user.Gender, user.Age).Scan(&user.ID)
+	err := conn.QueryRow(context.Background(), insert, user.Email, user.Name, user.Password, user.Gender, user.Dob).Scan(&user.ID)
 	if err != nil {
 		return types.User{}, err
 	}
 
+	user.UpdateAgeFromDateOfBirth()
 	return user, nil
 }
 
@@ -108,7 +109,7 @@ func rowMapperWithDistance(r pgx.Rows) ([]types.User, error) {
 	for r.Next() {
 		var user types.User
 
-		err := r.Scan(&user.ID, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Age, &user.Distance)
+		err := r.Scan(&user.ID, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Dob, &user.Distance)
 		if err != nil {
 			return nil, err
 		}
@@ -125,7 +126,7 @@ func rowMapper(r pgx.Rows) ([]types.User, error) {
 	for r.Next() {
 		var user types.User
 
-		err := r.Scan(&user.ID, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Age)
+		err := r.Scan(&user.ID, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Dob)
 		if err != nil {
 			return nil, err
 		}
@@ -140,12 +141,12 @@ func applyFilters(query string, params []interface{}, filters UsersFilter) (stri
 	var conditions []string
 
 	if filters.MinAge != "" {
-		conditions = append(conditions, "u.age >= $"+fmt.Sprint(len(params)+1))
+		conditions = append(conditions, "DATE_PART('year', AGE(u.dob)) >= $"+fmt.Sprint(len(params)+1))
 		params = append(params, filters.MinAge)
 	}
 
 	if filters.MaxAge != "" {
-		conditions = append(conditions, "u.age <= $"+fmt.Sprint(len(params)+1))
+		conditions = append(conditions, "DATE_PART('year', AGE(u.dob)) <= $"+fmt.Sprint(len(params)+1))
 		params = append(params, filters.MaxAge)
 	}
 
