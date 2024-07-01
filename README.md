@@ -5,7 +5,7 @@
 Implementation of a simple application that fulfils the requirements of the MUZZ backend exercise.  
 Discussion of **architectural and design choices** were left to the end of the document.
 
-See API section for routes. They are as per the spec, with the `discover` endpoint enriched with the following query params (all optional):
+See API section for routes. They are _as per_ the spec, with the `discover` endpoint enriched with the following query params (all optional):
 
 ```txt
 - min_age 
@@ -91,7 +91,7 @@ docker compose run e2e-test
 ```
 
 These tests are located in the test folder and are a simple Python script that performs a sequence of requests to the API.
-You don't need Python installed, as the script is run in a container, but they are quite useful to understand the API.
+You don't need Python installed, as the script is run in a container, but they are quite useful to understand the API/see it working.
 
 ## API
 
@@ -187,7 +187,6 @@ You don't need Python installed, as the script is run in a container, but they a
     - **Description:** Endpoint for swiping left or right on matches.
     - **Response:** `201 Created`
     - **Error Response:** `400 Bad Request` | `409 Conflict`
-    - **Response:** `201 Created`
     - **Request Body:**
       ```json
       {
@@ -235,11 +234,11 @@ e.g. `Bearer <token>` (mind the space between `Bearer` and the token)
 main.go
 ```
 
-The best **entry point** would the the `router.go` file, which is responsible for setting up the mapping
+The best **entry point** would be the `router.go` file, which is responsible for setting up the mapping
 of the routes and the handlers.
 
 The `config.go` file is responsible for setting up the configuration of the app, 
-while the `db.go` set up the connection pool to the database.
+while the `db.go` sets up the connection pool to the database.
 
 ## Data Model
 
@@ -268,11 +267,29 @@ The app is containerized, which makes it easy to run and deploy. The provided Do
 ### Attractiveness Calculation
 
 The attractiveness calculation is done as a counter the database, and it is just the number of right swipes a given user has.
-Ideally, this would be a more complex algorithm, and we could build a data pipeline of swipe (and other) events that calculate
+Ideally, this would be a more complex algorithm, based on dislikes as well, and we could build a data pipeline of swipe (and other) events that calculate
 a given person's attractiveness in relation to the user. This could also involve more data like preferences, location, hobbies, etc...
 
-When we boot up the application we also **create a worker goroutine** that will calculate the attractiveness of each user.
-It receives the swipe events via a channel.
+When we boot up the application we also **create a worker goroutine** that will re-calculate the attractiveness of each user.
+It receives the swipe events via a channel, and increments the `likes` value in the DB.
+
+### Assumptions
+
+- Swipes are unique.
+- Swipes are irreversible.
+- Matches are irreversible.
+- Swipes can only be made on valid users.
+- Cannot delete users.
+- User emails are unique.
+- Users can be everywhere on Earth.
+
+- We don't need paginated results
+- We don't want bi-directional sorts i.e. since we don't have pagination we can treat a sort by distance result set with a reversed iterator as a sort by DESC
+- We don't want to shard DB and/or have users distributed by DBs by geography
+- We don't need to log out users -- the JWT expiration date suffices.
+- For a small volume of data we don't need indexes on `age`. (`gender` has low cardinality so an index may be unadvised even for high data volumes).
+- Cache would be over-engineering ATM
+- We don't need localized error messages.
 
 ### Things I would have done with more time
 
