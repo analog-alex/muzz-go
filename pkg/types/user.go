@@ -12,17 +12,20 @@ type User struct {
 	Password string `json:"password"`
 	Name     string `json:"name"`
 	Gender   string `json:"gender"`
-	Age      uint8  `json:"age"`
 
 	// operational data, not part of the "presentation" data
-	Distance float64   `json:"-"`
-	Likes    int       `json:"-"`
-	Dob      time.Time `json:"-"`
+	Likes int       `json:"-"`
+	Dob   time.Time `json:"-"`
 }
 
 type UserCredentials struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type UserWithDistance struct {
+	User
+	Distance float64 `json:"distanceFromMe"`
 }
 
 type UserProfile struct {
@@ -33,26 +36,30 @@ type UserProfile struct {
 	Distance float64 `json:"distanceFromMe,omitempty"`
 }
 
+type UserCreatedInnerResponse struct {
+	User
+	Age uint8 `json:"age"`
+}
+
 type UserCreatedResponse struct {
-	Result User `json:"result"`
+	Result UserCreatedInnerResponse `json:"result"`
 }
 
 type UserProfilesResponse struct {
 	Results []UserProfile `json:"results"`
 }
 
-func (u *User) UpdateAgeFromDateOfBirth() {
-	u.Age = uint8(time.Now().Year() - u.Dob.Year())
+func (u *User) GetAge() uint8 {
+	return uint8(time.Now().Year() - u.Dob.Year())
 }
 
-func (u *User) ToUserProfile() UserProfile {
-	u.UpdateAgeFromDateOfBirth()
+func (u *UserWithDistance) ToUserProfile() UserProfile {
 
 	return UserProfile{
 		ID:       u.ID,
 		Name:     u.Name,
 		Gender:   u.Gender,
-		Age:      u.Age,
+		Age:      u.GetAge(),
 		Distance: u.Distance,
 	}
 }

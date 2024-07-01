@@ -38,5 +38,5 @@ func CreateUser(c *gin.Context) {
 
 	// important: return the original password
 	persistedUser.Password = password
-	types.OkResp(c, http.StatusCreated, types.UserCreatedResponse{Result: persistedUser})
+	types.OkResp(c, http.StatusCreated, types.UserCreatedResponse{Result: types.UserCreatedInnerResponse{User: persistedUser, Age: persistedUser.GetAge()}})
 }

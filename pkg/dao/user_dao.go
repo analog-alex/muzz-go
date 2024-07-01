@@ -24,7 +24,7 @@ func GetUserById(id int) (types.User, error) {
 	return user, nil
 }
 
-func GetAllUsersExcludingSwipes(id int, filters UsersFilter, sort UsersSort) ([]types.User, error) {
+func GetAllUsersExcludingSwipes(id int, filters UsersFilter, sort UsersSort) ([]types.UserWithDistance, error) {
 	query := `
 		SELECT 
 			u.id, u.email, u.username, u.password, u.gender, u.dob,
@@ -82,7 +82,6 @@ func CreateUser(user types.User) (types.User, error) {
 		return types.User{}, err
 	}
 
-	user.UpdateAgeFromDateOfBirth()
 	return user, nil
 }
 
@@ -103,11 +102,11 @@ func IncrementsLikesForUser(id int) error {
 
 // private functions
 
-func rowMapperWithDistance(r pgx.Rows) ([]types.User, error) {
-	users := make([]types.User, 0)
+func rowMapperWithDistance(r pgx.Rows) ([]types.UserWithDistance, error) {
+	users := make([]types.UserWithDistance, 0)
 
 	for r.Next() {
-		var user types.User
+		var user types.UserWithDistance
 
 		err := r.Scan(&user.ID, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Dob, &user.Distance)
 		if err != nil {
