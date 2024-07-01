@@ -83,8 +83,8 @@ def discover(token, query_params, assert_func=None):
 
 # run the tests
 if __name__ == '__main__':
-    print('Running health check')
-    time.sleep(2) # wait for the server to start -- this could be way more reliable by retrying the health check
+    print('Running health check (might take up to 3 seconds)...')
+    time.sleep(3) # wait for the server to start -- this could be way more reliable by retrying the health check
     heath_check()
 
     print('Creating users')

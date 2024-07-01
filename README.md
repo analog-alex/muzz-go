@@ -2,8 +2,18 @@
 
 ![logo](resources/muzz.png)
 
-Implementation of a simple application that fulfils the requirements of the MUZZ backend exercise.
+Implementation of a simple application that fulfils the requirements of the MUZZ backend exercise.  
 Discussion of **architectural and design choices** were left to the end of the document.
+
+See API section for routes. They are as per the spec, with the `discover` endpoint enriched with the following query params (all optional):
+
+```txt
+- min_age 
+- max_age
+- gender 
+- sort_distance
+- sort_attractiveness
+```
 
 - [Introduction](#introduction)
 - [How To Run](#how-to-run)
@@ -17,7 +27,7 @@ Discussion of **architectural and design choices** were left to the end of the d
 ## Introduction
 
 This is a very simple Go app, made using Go 1.22.4
-Main libs used:
+Main external libs used:
 
 - [Gin](https://github.com/gin-gonic/gin) for routing, request context and middleware.
 - [pgx](https://github.com/jackc/pgx) for PostgreSQL connection and driver.
@@ -41,6 +51,15 @@ docker-compose down
 ```
 By default the configurations in the `docker-compose.yml` file will start the app on port `80`.
 That way you can access the app on `http://localhost/`, as per the spec.
+
+**NOTE** Since docker compose has no health check, it might be the case that the DB is not yet accepting connections when you boot 
+up the app. In that case, check if the pod is up and if not re-run:
+
+```bash
+docker ps 
+
+docker-compose up -d app
+```
 
 Alternatively, you can run the app locally, as long a the instance of PostgresSQL is running:
 
@@ -68,7 +87,7 @@ will take care of that.
 Integration tests are available and can be run with the following command:
 
 ```bash
-docker compose run e2e-tests
+docker compose run e2e-test
 ```
 
 These tests are located in the test folder and are a simple Python script that performs a sequence of requests to the API.

@@ -4,7 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"log"
 	"muzz-service/config"
+	"time"
+)
+
+const (
+	maxRetries    = 5
+	retryInterval = 2 * time.Second
 )
 
 var pool *pgxpool.Pool
@@ -24,13 +31,30 @@ func init() {
 		c.DbName,
 	)
 
-	p, err := pgxpool.New(context.Background(), connectionString)
+	var err error
+	var p *pgxpool.Pool
+
+	for i := 0; i < maxRetries; i++ {
+		p, err = pgxpool.New(context.Background(), connectionString)
+		if err == nil {
+			log.Println("Successfully connected to the database")
+			break
+		}
+
+		log.Printf("Failed to connect to the database. Retrying in %v... (%d/%d)", retryInterval, i+1, maxRetries)
+		time.Sleep(retryInterval)
+	}
+
 	if err != nil {
 		// can't connect to the database, crash the program
 		panic(err)
 	}
 
 	pool = p
+
+	// test db connection -- kind of hacky
+	retryUntilConnectionIsReady()
+	log.Println("Database is accepting connections")
 
 	// add tables
 	// statements are already idempotent, so we can run them every time
@@ -94,5 +118,15 @@ func AddTables() {
 	`)
 	if err != nil {
 		panic(err)
+	}
+}
+
+func retryUntilConnectionIsReady() {
+	for i := 0; i < maxRetries; i++ {
+		_, err := pool.Exec(context.Background(), "SELECT 1")
+		if err == nil {
+			break
+		}
+		time.Sleep(retryInterval)
 	}
 }
